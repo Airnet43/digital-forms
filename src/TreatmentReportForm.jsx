@@ -323,6 +323,11 @@ export default function TreatmentReportForm() {
       : "filter";
   const reportOpenId = isCompressorReport ? 3 : REPORT_COPY_FORM_TYPES.has(formType) ? 2 : 1;
 
+  useEffect(() => {
+    if (!isCompressorReport) return;
+    setForm((current) => (current.oil_level ? current : { ...current, oil_level: "תקין" }));
+  }, [isCompressorReport]);
+
   const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
 
   const buildDeliveryFormUrl = (serviceCallNumber, hasPrefill = false, companyName = "") => {
@@ -574,7 +579,9 @@ export default function TreatmentReportForm() {
                     </div>
                   </div>
                   <div className="space-y-4">
-                    <div><label className={labelCls}>גובה שמן</label><input value={form.oil_level} onChange={set("oil_level")} className={inputCls} /></div>
+                    <div><label className={labelCls}>גובה שמן</label>
+                      <select value={form.oil_level || "תקין"} onChange={set("oil_level")} className={inputCls + " appearance-none"}><option>תקין</option><option>לא תקין</option></select>
+                    </div>
                     <div><label className={labelCls}>נזילות שמן</label>
                       <select value={form.oil_leaks} onChange={set("oil_leaks")} className={inputCls + " appearance-none"}><option>לא</option><option>כן</option></select>
                     </div>
