@@ -14,7 +14,7 @@ const COMPANY_CONFIG = {
     name: "קבוצת א.א.רם איירנט",
     brandName: "איירנט",
     legalLine: "טכנולוגיות אויר דחוס בע״מ",
-    postalLine: "ת.ד. 626, כרכור 37100",
+    postalLine: "תדהר 26 פרדס חנה",
     contactLine: "טל: 04-6372797, פקס: 04-6272414",
     subtitle: "תעודת משלוח דיגיטלית",
     accent: "#2563eb",
