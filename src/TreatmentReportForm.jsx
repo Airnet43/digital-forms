@@ -325,7 +325,7 @@ export default function TreatmentReportForm() {
 
   const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
 
-  const buildDeliveryFormUrl = (serviceCallNumber, hasPrefill = false) => {
+  const buildDeliveryFormUrl = (serviceCallNumber, hasPrefill = false, companyName = "") => {
     const params = new URLSearchParams(window.location.search);
     const nextUrl = new URL(window.location.href);
     const company = params.get("company");
@@ -335,16 +335,18 @@ export default function TreatmentReportForm() {
     nextUrl.hash = "";
     nextUrl.searchParams.set("service_call", serviceCallNumber || params.get("recordid") || "");
     if (company) nextUrl.searchParams.set("company", company);
+    if (companyName && companyName !== "---") nextUrl.searchParams.set("company_name", companyName);
     if (hasPrefill) nextUrl.searchParams.set("prefill", "1");
 
     return nextUrl.toString();
   };
 
-  const prepareDeliveryFormData = async (serviceCallNumber) => {
+  const prepareDeliveryFormData = async (serviceCallNumber, companyName = "") => {
     if (!serviceCallNumber) return false;
 
     const params = new URLSearchParams(window.location.search);
     const company = params.get("company") || "airnet";
+    const sourceCompanyName = companyName && companyName !== "---" ? companyName : form.company_name;
 
     try {
       const response = await fetch(DELIVERY_OPEN_WEBHOOK_URL, {
@@ -355,6 +357,7 @@ export default function TreatmentReportForm() {
           source: "treatment_report_submit",
           service_call_number: serviceCallNumber,
           company,
+          company_name: sourceCompanyName,
         }),
       });
 
@@ -362,9 +365,13 @@ export default function TreatmentReportForm() {
       if (!response.ok || !text) return false;
 
       const data = JSON.parse(text);
+      const deliveryData = {
+        ...data,
+        company_name: sourceCompanyName || data.company_name,
+      };
       sessionStorage.setItem(
         `${DELIVERY_PREFILL_PREFIX}${serviceCallNumber}`,
-        JSON.stringify({ data, saved_at: new Date().toISOString() })
+        JSON.stringify({ data: deliveryData, saved_at: new Date().toISOString() })
       );
       return true;
     } catch (err) {
@@ -471,9 +478,10 @@ export default function TreatmentReportForm() {
 
       if (response.ok) {
         const serviceCallNumber = payload.report_number || new URLSearchParams(window.location.search).get("recordid") || "";
-        const hasDeliveryPrefill = await prepareDeliveryFormData(serviceCallNumber);
+        const companyName = payload.company_name && payload.company_name !== "---" ? payload.company_name : "";
+        const hasDeliveryPrefill = await prepareDeliveryFormData(serviceCallNumber, companyName);
         alert('הדו"ח והמסמך נשלחו בהצלחה! כעת נפתח טופס תעודת משלוח.');
-        window.location.assign(buildDeliveryFormUrl(serviceCallNumber, hasDeliveryPrefill));
+        window.location.assign(buildDeliveryFormUrl(serviceCallNumber, hasDeliveryPrefill, companyName));
       } else {
         alert('שגיאה בשליחת הדו"ח. אנא נסה שוב.');
       }

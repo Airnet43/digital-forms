@@ -201,7 +201,7 @@ function buildDeliveryPdfTemplate(data, items, company) {
   const ink = "#1f3f93";
   const red = "#d72836";
   const deliveryNumber = data.delivery_note_number || data.service_call_number || "";
-  const brandName = company.brandName || data.company_name || company.name;
+  const brandName = data.company_name || company.brandName || company.name;
   const minimumRows = 13;
   const tableRows = Array.from({ length: Math.max(items.length, minimumRows) }, (_, index) => items[index] || {});
   const rows = items
@@ -410,6 +410,7 @@ export default function DeliveryCertificateForm() {
     params.get("service_call_number") ||
     params.get("report_number") ||
     "";
+  const urlCompanyName = params.get("company_name") || "";
   const companyCode = params.get("company") === "aaram" ? "aaram" : "airnet";
   const company = COMPANY_CONFIG[companyCode];
   const currentDateParts = useMemo(getCurrentDateParts, []);
@@ -418,7 +419,7 @@ export default function DeliveryCertificateForm() {
     ...emptyDelivery,
     service_call_number: serviceCallNumber,
     ...currentDateParts,
-    company_name: company.name,
+    company_name: urlCompanyName || company.name,
   });
   const [items, setItems] = useState([createEmptyItem()]);
   const [loading, setLoading] = useState(Boolean(serviceCallNumber));
@@ -482,6 +483,7 @@ export default function DeliveryCertificateForm() {
         form_type: "delivery_certificate_open",
         service_call_number: serviceCallNumber,
         company: companyCode,
+        company_name: form.company_name || company.name,
       }),
     })
       .then((res) => res.text())

@@ -33,5 +33,5 @@ export function getRouteFormType() {
 
 export function getPagePath(pathName) {
   const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
-  return `${basePath}/${pathName}`;
+  return `${basePath}/${pathName}/`;
 }
