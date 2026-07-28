@@ -15,7 +15,7 @@ const COMPANY_CONFIG = {
     brandName: "איירנט",
     legalLine: "טכנולוגיות אויר דחוס בע״מ",
     postalLine: "ת.ד. 626, כרכור 37100",
-    contactLine: "נייד: 050-5960110, טל: 04-6372797, פקס: 04-6272414",
+    contactLine: "טל: 04-6372797, פקס: 04-6272414",
     subtitle: "תעודת משלוח דיגיטלית",
     accent: "#2563eb",
     phone: "",
