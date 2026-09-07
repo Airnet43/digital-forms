@@ -330,7 +330,12 @@ export default function TreatmentReportForm() {
 
   const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
 
-  const buildDeliveryFormUrl = (serviceCallNumber, hasPrefill = false, companyName = "") => {
+  const buildDeliveryFormUrl = (
+    serviceCallNumber,
+    hasPrefill = false,
+    companyName = "",
+    technicianName = ""
+  ) => {
     const params = new URLSearchParams(window.location.search);
     const nextUrl = new URL(window.location.href);
     const company = params.get("company");
@@ -341,17 +346,19 @@ export default function TreatmentReportForm() {
     nextUrl.searchParams.set("service_call", serviceCallNumber || params.get("recordid") || "");
     if (company) nextUrl.searchParams.set("company", company);
     if (companyName && companyName !== "---") nextUrl.searchParams.set("company_name", companyName);
+    if (technicianName && technicianName !== "---") nextUrl.searchParams.set("technician", technicianName);
     if (hasPrefill) nextUrl.searchParams.set("prefill", "1");
 
     return nextUrl.toString();
   };
 
-  const prepareDeliveryFormData = async (serviceCallNumber, companyName = "") => {
+  const prepareDeliveryFormData = async (serviceCallNumber, companyName = "", technicianName = "") => {
     if (!serviceCallNumber) return false;
 
     const params = new URLSearchParams(window.location.search);
     const company = params.get("company") || "airnet";
     const sourceCompanyName = companyName && companyName !== "---" ? companyName : form.company_name;
+    const sourceTechnicianName = technicianName && technicianName !== "---" ? technicianName : form.technician;
 
     try {
       const response = await fetch(DELIVERY_OPEN_WEBHOOK_URL, {
@@ -363,6 +370,8 @@ export default function TreatmentReportForm() {
           service_call_number: serviceCallNumber,
           company,
           company_name: sourceCompanyName,
+          technician: sourceTechnicianName,
+          delivery_agent: sourceTechnicianName,
         }),
       });
 
@@ -373,6 +382,7 @@ export default function TreatmentReportForm() {
       const deliveryData = {
         ...data,
         company_name: sourceCompanyName || data.company_name,
+        delivery_agent: data.delivery_agent || data.technician || sourceTechnicianName,
       };
       sessionStorage.setItem(
         `${DELIVERY_PREFILL_PREFIX}${serviceCallNumber}`,
@@ -426,12 +436,19 @@ export default function TreatmentReportForm() {
               "address", "phone", "customer_email", "approver", "manufacturer", "model",
               "serial_number", "meter_reading", "separator_condition", "work_pressure",
               "air_leaks", "work_temp", "oil_level", "oil_leaks", "radiator_cleanliness",
-              "room_cleanliness", "room_temp", "dryer_check", "call_nature",
+              "room_cleanliness", "room_temp", "dryer_check", "call_nature", "technician",
             ].forEach((k) => {
               if (data[k] !== undefined && data[k] !== null && data[k] !== "") next[k] = data[k];
             });
             const emailValue = data.customer_email || data.email || data.client_email;
             if (emailValue) next.customer_email = emailValue;
+            const technicianValue =
+              data.technician ||
+              data.technician_name ||
+              data.driver_name ||
+              data.service_technician ||
+              data.delivery_agent;
+            if (technicianValue) next.technician = technicianValue;
             return next;
           });
         } catch {
@@ -484,9 +501,10 @@ export default function TreatmentReportForm() {
       if (response.ok) {
         const serviceCallNumber = payload.report_number || new URLSearchParams(window.location.search).get("recordid") || "";
         const companyName = payload.company_name && payload.company_name !== "---" ? payload.company_name : "";
-        const hasDeliveryPrefill = await prepareDeliveryFormData(serviceCallNumber, companyName);
+        const technicianName = payload.technician && payload.technician !== "---" ? payload.technician : "";
+        const hasDeliveryPrefill = await prepareDeliveryFormData(serviceCallNumber, companyName, technicianName);
         alert('הדו"ח והמסמך נשלחו בהצלחה! כעת נפתח טופס תעודת משלוח.');
-        window.location.assign(buildDeliveryFormUrl(serviceCallNumber, hasDeliveryPrefill, companyName));
+        window.location.assign(buildDeliveryFormUrl(serviceCallNumber, hasDeliveryPrefill, companyName, technicianName));
       } else {
         alert('שגיאה בשליחת הדו"ח. אנא נסה שוב.');
       }

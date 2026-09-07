@@ -416,6 +416,10 @@ export default function DeliveryCertificateForm() {
     params.get("report_number") ||
     "";
   const urlCompanyName = params.get("company_name") || "";
+  const urlDeliveryAgent =
+    params.get("delivery_agent") ||
+    params.get("technician") ||
+    "";
   const companyCode = params.get("company") === "aaram" ? "aaram" : "airnet";
   const company = COMPANY_CONFIG[companyCode];
   const currentDateParts = useMemo(getCurrentDateParts, []);
@@ -425,6 +429,7 @@ export default function DeliveryCertificateForm() {
     service_call_number: serviceCallNumber,
     ...currentDateParts,
     company_name: urlCompanyName || company.name,
+    delivery_agent: urlDeliveryAgent,
   });
   const [items, setItems] = useState([createEmptyItem()]);
   const [loading, setLoading] = useState(Boolean(serviceCallNumber));
@@ -489,6 +494,7 @@ export default function DeliveryCertificateForm() {
         service_call_number: serviceCallNumber,
         company: companyCode,
         company_name: form.company_name || company.name,
+        delivery_agent: form.delivery_agent,
       }),
     })
       .then((res) => res.text())
