@@ -195,6 +195,11 @@ const mapDeliveryResponseToForm = (data, current) => ({
   customer_address: getValue(data, ["customer_address", "address"], current.customer_address),
   customer_phone: getValue(data, ["customer_phone", "phone"], current.customer_phone),
   customer_email: getValue(data, ["customer_email", "email", "client_email"], current.customer_email),
+  delivery_agent: getValue(
+    data,
+    ["delivery_agent", "technician", "technician_name", "driver_name", "service_technician"],
+    current.delivery_agent
+  ),
 });
 
 function buildDeliveryPdfTemplate(data, items, company) {
