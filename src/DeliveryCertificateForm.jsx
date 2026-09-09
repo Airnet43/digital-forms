@@ -237,11 +237,6 @@ function buildDeliveryPdfTemplate(data, items, company) {
   return `
     <div dir="rtl" style="width:794px;min-height:1123px;background:#fff;color:${ink};font-family:'Heebo',Arial,sans-serif;padding:44px 54px 34px;box-sizing:border-box;">
       <header style="position:relative;margin-bottom:28px;border-bottom:2px solid ${ink};padding-bottom:12px;text-align:center;">
-        <div style="position:absolute;right:0;top:6px;width:92px;height:58px;border:3px solid ${ink};border-radius:50%;opacity:.95;">
-          <div style="position:absolute;right:13px;top:12px;width:52px;height:18px;border-top:5px solid ${ink};border-radius:50%;transform:rotate(-13deg);"></div>
-          <div style="position:absolute;right:17px;top:29px;width:50px;height:10px;background:${ink};border-radius:50%;transform:rotate(-13deg);"></div>
-        </div>
-
         <div style="font-size:42px;line-height:1;font-weight:900;letter-spacing:0;color:${ink};">
           ${esc(brandName)}
         </div>
